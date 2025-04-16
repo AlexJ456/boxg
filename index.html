@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Box Breathing app to aid relaxation and sleep.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Box Breathing</title>
+    <style>
+        /* Basic resets and ensuring no scroll/zoom */
+        html, body {
+            overscroll-behavior: none; /* Prevent pull-to-refresh */
+            touch-action: none; /* Disable panning/zooming */
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Prevent scrolling */
+            font-family: 'Inter', sans-serif; /* Apply font */
+        }
+        /* Hide scrollbars */
+        body::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
+        body { -ms-overflow-style: none; } /* IE and Edge */
+        body { scrollbar-width: none; } /* Firefox */
+
+        /* Style for the animated dot */
+        #dot {
+            width: 20px;
+            height: 20px;
+            background-color: #FFD700; /* Gold */
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.5s ease-in-out; /* Smooth transition for movement */
+            /* Start position: bottom-left */
+            bottom: 0;
+            left: 0;
+        }
+
+        /* Define positions for the dot animation */
+        #box[data-phase="inhale"] #dot { bottom: calc(100% - 20px); left: 0; }
+        #box[data-phase="hold"] #dot { bottom: calc(100% - 20px); left: calc(100% - 20px); }
+        #box[data-phase="exhale"] #dot { bottom: 0; left: calc(100% - 20px); }
+        #box[data-phase="wait"] #dot { bottom: 0; left: 0; }
+
+        /* Ensure pages take full height */
+        #home, #exercise {
+            min-height: 100vh; /* Use viewport height */
+            display: flex;
+            flex-direction: column;
+        }
+        /* Hide elements using 'hidden' class from Tailwind */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-200 flex items-center justify-center min-h-screen">
+
+    <div id="home" class="w-full max-w-md p-8 flex flex-col items-center justify-center text-center">
+        <h1 class="text-4xl font-bold mb-8 text-orange-400">Box Breathing</h1>
+        <p class="mb-6 text-lg">Prepare to relax.</p>
+
+        <div class="w-full mb-8">
+            <label for="phaseDurationSlider" class="block mb-2 text-lg">Phase Duration: <span id="phaseDurationValue" class="font-semibold text-orange-300">4</span> seconds</label>
+            <input type="range" id="phaseDurationSlider" min="3" max="6" value="4" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-orange-500">
+        </div>
+
+        <div class="w-full mb-8">
+            <p class="mb-4 text-lg">Set Time Limit (Optional):</p>
+            <div class="flex justify-center space-x-4 mb-4">
+                <button data-time="120" class="time-limit-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">2 Min</button>
+                <button data-time="300" class="time-limit-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">5 Min</button>
+                <button data-time="600" class="time-limit-btn bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">10 Min</button>
+            </div>
+             <p id="selectedTimeLimit" class="text-sm text-gray-400 h-4"></p> </div>
+
+
+        <button id="startButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-xl transition duration-200">
+            Start
+        </button>
+         <button id="startNoLimitButton" class="mt-4 text-orange-400 hover:text-orange-300 transition duration-200">
+            Start without time limit
+        </button>
+    </div>
+
+    <div id="exercise" class="w-full h-full flex flex-col items-center justify-center text-center hidden p-4 relative">
+        <div id="totalTimerDisplay" class="absolute top-4 right-4 text-sm text-gray-500">00:00</div>
+
+        <div class="relative w-48 h-48 md:w-64 md:h-64 border-2 border-orange-500 rounded-lg mb-8 flex items-center justify-center">
+            <div id="box" class="absolute w-full h-full" data-phase="wait">
+                 <div id="dot"></div>
+            </div>
+            <div id="phaseTimerDisplay" class="text-6xl font-bold text-orange-400">4</div>
+        </div>
+
+        <div id="phaseNameDisplay" class="text-3xl font-semibold capitalize mb-12 text-orange-300">Get Ready</div>
+
+        <button id="stopButton" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+            Stop
+        </button>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Register Service Worker for Offline Functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
